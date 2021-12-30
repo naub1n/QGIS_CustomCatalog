@@ -1,0 +1,10 @@
+{
+  "catalogs": [
+    {
+      "name": "Default",
+      "type": "json",
+      "link": "",
+      "qgisauthconfigid": ""
+    }
+  ]
+}

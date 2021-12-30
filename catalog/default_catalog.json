@@ -1,0 +1,123 @@
+[
+  {
+    "name": "DSIUN",
+    "type": "catalog",
+    "children": [
+      {
+        "name": "Couches internes",
+        "type": "node",
+        "children": [
+          {
+            "name": "Couches AESN",
+            "type": "node",
+            "children": [
+              {
+                "name": null,
+                "type": "layer",
+                "geomtype": null,
+                "versions": [
+                  {
+                    "version": "1.1",
+                    "formats": [
+                      {
+                        "format": "PostGIS",
+                        "link": "dbname='mestests' host=192.168.0.20 port=5400 key='id' srid=2154 type=MultiPolygon checkPrimaryKeyUnicity='1' table=\"public\".\"test\" (geom)",
+                        "qgisauthconfigid": ""
+                      },
+                      {
+                        "format": "WFS",
+                        "link": "myothersuperlink11",
+                        "qgisauthconfigid": ""
+                      }
+                    ]
+                  },
+                  {
+                    "version": "3.0",
+                    "formats": [
+                      {
+                        "format": "WMS",
+                        "link": "crs=EPSG:3857&dpiMode=7&format=image/png&layers=GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2&styles=normal&tileMatrixSet=PM&url=https://wxs.ign.fr/decouverte/geoportail/wmts?SERVICE%3DWMTS%26REQUEST%3DGetCapabilities",
+                        "qgisauthconfigid": ""
+                      },
+                      {
+                        "format": "PostGIS",
+                        "link": "dbname='mestests' host=192.168.0.20 port=5400 key='id' type=MultiPolygon checkPrimaryKeyUnicity='1' table=\"public\".\"test\" (geom)",
+                        "qgisauthconfigid": ""
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": null,
+            "type": "layer",
+            "geomtype": null,
+            "versions": [
+              {
+                "version": "1.0",
+                "formats": [
+                  {
+                    "format": "WMS",
+                    "link": "mysuperlink",
+                    "qgisauthconfigid": ""
+                  },
+                  {
+                    "format": "PostGIS",
+                    "link": "myothersuperlink",
+                    "qgisauthconfigid": ""
+                  }
+                ]
+              },
+              {
+                "version": "2.0",
+                "formats": [
+                  {
+                    "format": "WMS",
+                    "link": "mysuperlink2",
+                    "qgisauthconfigid": ""
+                  },
+                  {
+                    "format": "PostGIS",
+                    "link": "myothersuperlink2",
+                    "qgisauthconfigid": ""
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Couches externes",
+        "type": "node",
+        "children": [
+          {
+            "name": "IGN",
+            "type": "node",
+            "children": [
+              {
+                "name": null,
+                "type": "layer",
+                "geomtype": null,
+                "versions": [
+                  {
+                    "version": "2",
+                    "formats": [
+                      {
+                        "format": "WMTS",
+                        "link": "crs=EPSG:3857&dpiMode=7&format=image/png&layers=GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2&styles=normal&tileMatrixSet=PM&url=https://wxs.ign.fr/decouverte/geoportail/wmts?SERVICE%3DWMTS%26REQUEST%3DGetCapabilities",
+                        "qgisauthconfigid": ""
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]
