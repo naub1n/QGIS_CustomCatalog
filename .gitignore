@@ -1,6 +1,7 @@
 # Python cache
 __pycache__/
 **/__pycache__/
+*.pyc
 # Build data pb_tool
 zip_build/
 **/help/build/
