@@ -1,116 +1,56 @@
 [
   {
-    "name": "DSIUN",
+    "name": "CatalogExample",
     "type": "catalog",
     "children": [
       {
-        "name": "Couches internes",
+        "name": "IGN",
         "type": "node",
         "children": [
           {
-            "name": "Couches AESN",
-            "type": "node",
-            "children": [
+            "name": "Plan IGN",
+            "type": "layer",
+            "geomtype": "raster",
+            "versions": [
               {
-                "name": null,
-                "type": "layer",
-                "geomtype": null,
-                "versions": [
+                "version": "v2",
+                "formats": [
                   {
-                    "version": "1.1",
-                    "formats": [
-                      {
-                        "format": "PostGIS",
-                        "link": "dbname='mestests' host=192.168.0.20 port=5400 key='id' srid=2154 type=MultiPolygon checkPrimaryKeyUnicity='1' table=\"public\".\"test\" (geom)",
-                        "qgisauthconfigid": ""
-                      },
-                      {
-                        "format": "WFS",
-                        "link": "myothersuperlink11",
-                        "qgisauthconfigid": ""
-                      }
-                    ]
-                  },
-                  {
-                    "version": "3.0",
-                    "formats": [
-                      {
-                        "format": "WMS",
-                        "link": "crs=EPSG:3857&dpiMode=7&format=image/png&layers=GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2&styles=normal&tileMatrixSet=PM&url=https://wxs.ign.fr/decouverte/geoportail/wmts?SERVICE%3DWMTS%26REQUEST%3DGetCapabilities",
-                        "qgisauthconfigid": ""
-                      },
-                      {
-                        "format": "PostGIS",
-                        "link": "dbname='mestests' host=192.168.0.20 port=5400 key='id' type=MultiPolygon checkPrimaryKeyUnicity='1' table=\"public\".\"test\" (geom)",
-                        "qgisauthconfigid": ""
-                      }
-                    ]
+                    "format": "WMTS",
+                    "link": "url=https://wxs.ign.fr/decouverte/geoportail/wmts?SERVICE%3DWMTS%26REQUEST%3DGetCapabilities&format=image/png&styles=normal&version=1.0.0&crs=EPSG:3857&tileMatrixSet=PM&layers=GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2",
+                    "qgisauthconfigid": ""
                   }
                 ]
               }
             ]
           },
           {
-            "name": null,
+            "name": "Corin Land Cover",
             "type": "layer",
-            "geomtype": null,
+            "geomtype": "polygon",
             "versions": [
               {
-                "version": "1.0",
+                "version": "2012",
                 "formats": [
                   {
                     "format": "WMS",
-                    "link": "mysuperlink",
+                    "link": "url=http://wxs.ign.fr/corinelandcover/geoportail/r/wms&format=image/png&styles=&version=1.1.1&layers=LANDCOVER.CLC12_FR",
                     "qgisauthconfigid": ""
                   },
                   {
-                    "format": "PostGIS",
-                    "link": "myothersuperlink",
+                    "format": "WFS",
+                    "link": "http://wxs.ign.fr/corinelandcover/geoportail/wfs?service=WFS&request=GetFeature&version=2.0.0&typename=LANDCOVER.CLC12_FR:clc12_fr",
                     "qgisauthconfigid": ""
                   }
                 ]
               },
               {
-                "version": "2.0",
+                "version": "2018",
                 "formats": [
                   {
                     "format": "WMS",
-                    "link": "mysuperlink2",
+                    "link": "url=http://wxs.ign.fr/corinelandcover/geoportail/r/wms&format=image/png&styles=&version=1.1.1&layers=LANDCOVER.CLC18_FR",
                     "qgisauthconfigid": ""
-                  },
-                  {
-                    "format": "PostGIS",
-                    "link": "myothersuperlink2",
-                    "qgisauthconfigid": ""
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "name": "Couches externes",
-        "type": "node",
-        "children": [
-          {
-            "name": "IGN",
-            "type": "node",
-            "children": [
-              {
-                "name": null,
-                "type": "layer",
-                "geomtype": null,
-                "versions": [
-                  {
-                    "version": "2",
-                    "formats": [
-                      {
-                        "format": "WMTS",
-                        "link": "crs=EPSG:3857&dpiMode=7&format=image/png&layers=GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2&styles=normal&tileMatrixSet=PM&url=https://wxs.ign.fr/decouverte/geoportail/wmts?SERVICE%3DWMTS%26REQUEST%3DGetCapabilities",
-                        "qgisauthconfigid": ""
-                      }
-                    ]
                   }
                 ]
               }
