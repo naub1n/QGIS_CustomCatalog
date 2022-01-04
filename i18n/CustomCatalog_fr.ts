@@ -4,32 +4,32 @@
 <context>
     <name>@default</name>
     <message>
-        <location filename="../customcatalog/globals.py" line="203"/>
+        <location filename="../customcatalog/globals.py" line="205"/>
         <source>Keys are missing in setting</source>
         <translation>Des clés sont manquantes dans la configuration</translation>
     </message>
     <message>
-        <location filename="../customcatalog/globals.py" line="203"/>
+        <location filename="../customcatalog/globals.py" line="205"/>
         <source>Item name</source>
         <translation>Nom de l&apos;élément</translation>
     </message>
     <message>
-        <location filename="../customcatalog/globals.py" line="203"/>
+        <location filename="../customcatalog/globals.py" line="205"/>
         <source>Keys</source>
         <translation>Clés</translation>
     </message>
     <message>
-        <location filename="../customcatalog/globals.py" line="242"/>
+        <location filename="../customcatalog/globals.py" line="244"/>
         <source>Layer loaded</source>
         <translation>Couche chargée</translation>
     </message>
     <message>
-        <location filename="../customcatalog/globals.py" line="243"/>
+        <location filename="../customcatalog/globals.py" line="245"/>
         <source>Invalid layer</source>
         <translation>Couche invalide</translation>
     </message>
     <message>
-        <location filename="../customcatalog/globals.py" line="281"/>
+        <location filename="../customcatalog/globals.py" line="283"/>
         <source>is not a catalog type</source>
         <translation>n&apos;est pas du type catalogue</translation>
     </message>
@@ -152,17 +152,17 @@
 <context>
     <name>CustomCatalogEditCatalog</name>
     <message>
-        <location filename="../customcatalog/edit_catalog.py" line="85"/>
+        <location filename="../customcatalog/edit_catalog.py" line="84"/>
         <source>Unable to read setting</source>
         <translation>Impossible de lire la configuration</translation>
     </message>
     <message>
-        <location filename="../customcatalog/edit_catalog.py" line="130"/>
+        <location filename="../customcatalog/edit_catalog.py" line="129"/>
         <source>no change found in catalog</source>
         <translation>Pas de changement identifié dans le catalogue</translation>
     </message>
     <message>
-        <location filename="../customcatalog/edit_catalog.py" line="151"/>
+        <location filename="../customcatalog/edit_catalog.py" line="150"/>
         <source>Catalog modified</source>
         <translation>Catalogue modifié</translation>
     </message>
@@ -177,99 +177,144 @@
         <translation>format</translation>
     </message>
     <message>
-        <location filename="../customcatalog/edit_catalog.py" line="209"/>
+        <location filename="../customcatalog/edit_catalog.py" line="208"/>
         <source>Delete this format</source>
         <translation>Supprimer ce format</translation>
     </message>
     <message>
-        <location filename="../customcatalog/edit_catalog.py" line="212"/>
+        <location filename="../customcatalog/edit_catalog.py" line="211"/>
         <source>Add format</source>
         <translation>Ajouter un format</translation>
     </message>
     <message>
-        <location filename="../customcatalog/edit_catalog.py" line="214"/>
+        <location filename="../customcatalog/edit_catalog.py" line="213"/>
         <source>Delete this version</source>
         <translation>Supprimer cette version</translation>
     </message>
     <message>
-        <location filename="../customcatalog/edit_catalog.py" line="218"/>
+        <location filename="../customcatalog/edit_catalog.py" line="217"/>
         <source>Add version</source>
         <translation>Ajouter une version</translation>
     </message>
     <message>
-        <location filename="../customcatalog/edit_catalog.py" line="220"/>
+        <location filename="../customcatalog/edit_catalog.py" line="219"/>
         <source>Delete this layer</source>
         <translation>Supprimer cette couche</translation>
     </message>
     <message>
-        <location filename="../customcatalog/edit_catalog.py" line="232"/>
+        <location filename="../customcatalog/edit_catalog.py" line="231"/>
         <source>Add layer</source>
         <translation>Ajouter une couche</translation>
     </message>
     <message>
-        <location filename="../customcatalog/edit_catalog.py" line="234"/>
+        <location filename="../customcatalog/edit_catalog.py" line="233"/>
         <source>Add node</source>
         <translation>Ajouter un nœud</translation>
     </message>
     <message>
-        <location filename="../customcatalog/edit_catalog.py" line="228"/>
+        <location filename="../customcatalog/edit_catalog.py" line="227"/>
         <source>Delete this node</source>
         <translation>Supprimer ce nœud</translation>
     </message>
     <message>
-        <location filename="../customcatalog/edit_catalog.py" line="247"/>
+        <location filename="../customcatalog/edit_catalog.py" line="246"/>
         <source>Sort Asc</source>
         <translation>Tri croiss.</translation>
     </message>
     <message>
-        <location filename="../customcatalog/edit_catalog.py" line="250"/>
+        <location filename="../customcatalog/edit_catalog.py" line="249"/>
         <source>Sort Desc</source>
         <translation>Tri décroiss.</translation>
     </message>
     <message>
-        <location filename="../customcatalog/edit_catalog.py" line="280"/>
+        <location filename="../customcatalog/edit_catalog.py" line="279"/>
         <source>New version</source>
         <translation>Nouvelle version</translation>
     </message>
     <message>
-        <location filename="../customcatalog/edit_catalog.py" line="283"/>
+        <location filename="../customcatalog/edit_catalog.py" line="282"/>
         <source>New node</source>
         <translation>Nouveau nœud</translation>
     </message>
     <message>
-        <location filename="../customcatalog/edit_catalog.py" line="288"/>
+        <location filename="../customcatalog/edit_catalog.py" line="287"/>
         <source>New layer</source>
         <translation>Nouvelle couche</translation>
     </message>
     <message>
-        <location filename="../customcatalog/edit_catalog.py" line="484"/>
+        <location filename="../customcatalog/edit_catalog.py" line="559"/>
         <source>Select a layer</source>
         <translation>Selectionner une couche</translation>
     </message>
     <message>
-        <location filename="../customcatalog/edit_catalog.py" line="484"/>
+        <location filename="../customcatalog/edit_catalog.py" line="559"/>
         <source>Layer :</source>
         <translation>Couche :</translation>
     </message>
     <message>
         <location filename="../customcatalog/edit_catalog.py" line="479"/>
         <source>Invalid WFS url</source>
-        <translation>Url WFS invalide</translation>
+        <translation type="obsolete">Url WFS invalide</translation>
     </message>
     <message>
-        <location filename="../customcatalog/edit_catalog.py" line="512"/>
+        <location filename="../customcatalog/edit_catalog.py" line="634"/>
         <source>Select layer file</source>
         <translation>Selectionner un fichier de couche</translation>
     </message>
     <message>
-        <location filename="../customcatalog/edit_catalog.py" line="526"/>
+        <location filename="../customcatalog/edit_catalog.py" line="648"/>
         <source>Changes detected, are you sure to close catalog editing ?</source>
         <translation>Changement detecté, voulez-vous vraiment fermer l&apos;édition du catalogue?</translation>
     </message>
     <message>
-        <location filename="../customcatalog/edit_catalog.py" line="527"/>
+        <location filename="../customcatalog/edit_catalog.py" line="649"/>
         <source>Changes detected</source>
         <translation>Changement détecté</translation>
+    </message>
+    <message>
+        <location filename="../customcatalog/edit_catalog.py" line="568"/>
+        <source>Select a format</source>
+        <translation>Selectionner un format</translation>
+    </message>
+    <message>
+        <location filename="../customcatalog/edit_catalog.py" line="568"/>
+        <source>Format :</source>
+        <translation>Format :</translation>
+    </message>
+    <message>
+        <location filename="../customcatalog/edit_catalog.py" line="578"/>
+        <source>Select a tile matrix</source>
+        <translation>Selectionner un jeu de tuiles</translation>
+    </message>
+    <message>
+        <location filename="../customcatalog/edit_catalog.py" line="578"/>
+        <source>Tile matrix :</source>
+        <translation>Jeu de tuiles :</translation>
+    </message>
+    <message>
+        <location filename="../customcatalog/edit_catalog.py" line="587"/>
+        <source>Select a style</source>
+        <translation>Selectionner un style</translation>
+    </message>
+    <message>
+        <location filename="../customcatalog/edit_catalog.py" line="587"/>
+        <source>Style :</source>
+        <translation>Style :</translation>
+    </message>
+    <message>
+        <location filename="../customcatalog/edit_catalog.py" line="598"/>
+        <source>Invalid {} url</source>
+        <translation>url {} invalide</translation>
+    </message>
+    <message>
+        <location filename="../customcatalog/edit_catalog.py" line="598"/>
+        <source>URL</source>
+        <translation>URL</translation>
+    </message>
+    <message>
+        <location filename="../customcatalog/edit_catalog.py" line="598"/>
+        <source>Version</source>
+        <translation>Version</translation>
     </message>
 </context>
 <context>
