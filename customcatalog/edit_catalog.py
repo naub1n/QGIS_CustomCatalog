@@ -32,16 +32,15 @@
 
 import json
 import os
-import types
 
 from PyQt5.QtGui import QColor
 from qgis.PyQt import QtWidgets, uic, QtCore, QtGui
-from qgis.core import Qgis, QgsApplication, QgsSettings, QgsProviderRegistry, QgsDataSourceUri, QgsVectorLayer
+from qgis.core import Qgis, QgsApplication, QgsProviderRegistry, QgsDataSourceUri
 from .globals import log, read_catalogs, CustomCatalogTreeWidgetItem, \
     get_icon, layer_format_values, layer_geom_values, catalog_item_type_values, check_keys, load_layer
 from .db_connection import CustomCatalogAddConnexionDialog
 from osgeo import ogr
-from owslib.wfs import WebFeatureService
+from owslib import wfs, wms, wmts
 from urllib.parse import parse_qs, urlparse
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
@@ -273,7 +272,7 @@ class CustomCatalogEditCatalog(QtWidgets.QDialog, FORM_CLASS):
             if child_type == 'format':
                 self.tree.setItemWidget(new_item, self.format_col_id,
                                         self.__cbx_defaults_layers_formats(None, True, new_item))
-                self.tree.setItemWidget(new_item, self.auth_col_id, self.cbx_defaults_authid())
+                self.tree.setItemWidget(new_item, self.auth_col_id, self.__cbx_defaults_authid())
                 self.tree.setItemWidget(new_item, self.browse_col_id, self.__create_btn_browse(new_item))
                 self.__on_cbx_format_changed(new_item)
             elif child_type == 'version':
@@ -300,10 +299,9 @@ class CustomCatalogEditCatalog(QtWidgets.QDialog, FORM_CLASS):
         return deleteItem_action
 
     def __delete_item(self, item):
-        if isinstance(item, QtWidgets.QTreeWidgetItem):
-            root = self.tree.invisibleRootItem()
-            for tree_item in self.tree.selectedItems():
-                (tree_item.parent() or root).removeChild(tree_item)
+        if isinstance(item, CustomCatalogTreeWidgetItem):
+            parent = item.parent
+            parent.removeChild(item)
             self.resize_columns()
 
     def __get_editable_cols(self, item_type):
@@ -386,7 +384,7 @@ class CustomCatalogEditCatalog(QtWidgets.QDialog, FORM_CLASS):
                     catalog_root_item.setIcon(self.name_col_id, get_icon("catalog"))
                     self.tree.addTopLevelItem(catalog_root_item)
                     self.tree.setItemWidget(catalog_root_item, self.type_col_id,
-                                            self.__cbx_defaults_types_nodes(item['type'], enabled=False))
+                                            self.__cbx_defaults_types_nodes(item['type'], False, catalog_root_item))
                     self.updateItemData(catalog_root_item)
                     self.read_levels(item['children'], catalog_root_item)
                 else:
@@ -395,7 +393,7 @@ class CustomCatalogEditCatalog(QtWidgets.QDialog, FORM_CLASS):
                     if widget_item.catalog_type == "node":
                         widget_item.setIcon(0, get_icon(item['type']))
                         self.tree.setItemWidget(widget_item, self.type_col_id,
-                                                self.__cbx_defaults_types_nodes(item['type'], enabled=False))
+                                                self.__cbx_defaults_types_nodes(item['type'], False, widget_item))
                         widget_item.editable_cols = [self.name_col_id]
                         widget_item.setEditable(True)
                         self.updateItemData(widget_item)
@@ -403,9 +401,11 @@ class CustomCatalogEditCatalog(QtWidgets.QDialog, FORM_CLASS):
                             self.read_levels(item['children'], widget_item)
 
                     elif widget_item.catalog_type == "layer":
-                        self.tree.setItemWidget(widget_item, self.geom_col_id, self.__cbx_defaults_layers_geom(item['geomtype']))
+                        self.tree.setItemWidget(widget_item, self.geom_col_id,
+                                                self.__cbx_defaults_layers_geom(item['geomtype'], widget_item))
                         widget_item.editable_cols = [self.name_col_id, self.geom_col_id]
                         widget_item.setEditable(True)
+                        self.updateItemData(widget_item)
                         for version in item['versions']:
                             version_widget_item = CustomCatalogTreeWidgetItem(widget_item, 'version', [self.version_col_id],
                                                                               editable=True)
@@ -435,6 +435,7 @@ class CustomCatalogEditCatalog(QtWidgets.QDialog, FORM_CLASS):
 
     def __create_btn_browse(self, item):
         btn = QtWidgets.QPushButton('...')
+        btn.setMaximumWidth(55)
         btn.clicked.connect(lambda: self.__on_btn_browse_clicked(item))
         return btn
 
@@ -468,36 +469,157 @@ class CustomCatalogEditCatalog(QtWidgets.QDialog, FORM_CLASS):
                     self.cnx_dialog.connectionDefined.connect(lambda new_path: tree_item.setText(self.link_col_id, new_path))
                     self.cnx_dialog.dialogClosed.connect(self.__on_connexiondialog_closed)
                     self.cnx_dialog.exec_()
-                elif layer_format == "WFS":
+                elif layer_format == "WFS" or layer_format == "WMS" or layer_format == "WMTS":
                     if current_path:
-                        try:
-                            base_url = current_path.split("?")[0]
-                            parsed_url = urlparse(tree_item.text(self.link_col_id))
-                            wfs_version = parse_qs(parsed_url.query.lower())['version'][0]
-                            wfs = WebFeatureService(url=base_url, version=wfs_version)
-                        except Exception as exc:
-                            log(self.tr("Invalid WFS url"), Qgis.Warning)
-                            return
-                        wfs_layers = list(wfs.contents)
-                        wfs_layers.sort()
-                        input_dialog = QtWidgets.QInputDialog()
-                        selected_layer = input_dialog.getItem(self, self.tr("Select a layer"),
-                                                              self.tr("Layer :"), wfs_layers)
-                        tree_item.setText(self.link_col_id, base_url + '?request=GetFeature&version=' + wfs_version + '&typename=' + selected_layer[0])
+                        layer_url = self.get_ows_layer(layer_format, current_path)
+                        if layer_url:
+                            tree_item.setText(self.link_col_id, layer_url)
+
+    def get_ows_layer(self, layer_format, url):
+        try:
+            if layer_format == 'WFS':
+                base_url = url.split("?")[0]
+                parsed_url = urlparse(url)
+                args = parse_qs(parsed_url.query.lower())
+                version = None
+                if args:
+                    if 'version' in args:
+                        version = parse_qs(parsed_url.query.lower())['version'][0]
+                if not version:
+                    log("WFS version not specified, v1.0.0 is used", Qgis.Info)
+                    version = '1.0.0'
+                ows = wfs.WebFeatureService(url=base_url, version=version)
+                layers = list(ows.contents)
+                layers.sort()
+                input_dialog = QtWidgets.QInputDialog()
+                selected_layer, ok = input_dialog.getItem(self, self.tr("Select a layer"),
+                                                      self.tr("Layer :"), layers, 0, False)
+                if not ok or not selected_layer:
+                    return
+                full_url = base_url + '?service=WFS&request=GetFeature&version=' + version + '&typename=' + selected_layer
+
+            elif layer_format == 'WMS':
+                if not "url=" in url:
+                    log("WMS link should be similar to url=httpx://xxxxxx", Qgis.Warning)
+                    log("Trying to read URL adding 'url='", Qgis.Info)
+                    return self.get_ows_layer(layer_format, "url=" + url)
+                try:
+                    params = dict(arg.split('=') for arg in url.split('&'))
+                except Exception as exc:
+                    log("WMS link should be similar to key1=value1&key2=value2", Qgis.Warning, str(exc))
+                    if "?" in url:
+                        log("Trying to read URL replacing '?' by '&'", Qgis.Info)
+                        return self.get_ows_layer(layer_format, url.replace("?", "&"))
+                    return
+                base_url = params['url']
+                if "version" in params:
+                    version = params["version"]
+                else:
+                    log("WMS version not specified, v1.1.1 is used", Qgis.Info)
+                    version = '1.1.1'
+                ows = wms.WebMapService(url=base_url, version=version)
+                format_options = ows.getOperationByName('GetMap').formatOptions
+                if "image/png" in format_options:
+                    format_option = "image/png"
+                elif "image/jpeg" in format_options:
+                    format_option = "image/jpeg"
+                else:
+                    format_option = format_options[0]
+                layers = list(ows.contents)
+                layers.sort()
+                input_dialog = QtWidgets.QInputDialog()
+                selected_layer, ok = input_dialog.getItem(self, self.tr("Select a layer"),
+                                                      self.tr("Layer :"), layers, 0, False)
+                if not ok or not selected_layer:
+                    return
+
+                full_url = 'url=' + base_url + '&format=' + format_option + '&styles=&version=' + version + '&layers=' + selected_layer
+
+            elif layer_format == 'WMTS':
+                if not "url=" in url:
+                    log("WMS link should be similar to url=httpx://xxxxxx", Qgis.Warning)
+                    log("Trying to read URL adding 'url='", Qgis.Info)
+                    return self.get_ows_layer(layer_format, "url=" + url)
+                try:
+                    params = dict(arg.split('=') for arg in url.split("?")[0].split('&'))
+                except Exception as exc:
+                    log("WMTS link should be similar to key1=value1&key2=value2", Qgis.Warning, str(exc))
+                    return
+                base_url = params['url']
+                if "version" in params:
+                    version = params["version"]
+                else:
+                    log("WMTS version not specified, v1.0.0 is used", Qgis.Info)
+                    version = '1.0.0'
+                ows = wmts.WebMapTileService(url=base_url, version=version)
+
+                layers = list(ows.contents)
+                layers.sort()
+                input_dialog_layer = QtWidgets.QInputDialog()
+                selected_layer, ok = input_dialog_layer.getItem(self, self.tr("Select a layer"), self.tr("Layer :"), layers, 0, False)
+                if not ok or not selected_layer:
+                    return
+
+                formats = ows[selected_layer].formats
+                if len(formats) == 1:
+                    selected_format = formats[0]
+                else:
+                    input_dialog_format = QtWidgets.QInputDialog()
+                    selected_format, ok = input_dialog_format.getItem(self, self.tr("Select a format"), self.tr("Format :"),
+                                                                  formats)
+                    if not ok or not selected_format:
+                        return
+
+                tile_matrix = sorted(ows[selected_layer].tilematrixsetlinks.keys())
+                if len(tile_matrix) == 1:
+                    selected_tile_matrix = tile_matrix[0]
+                else:
+                    input_dialog_tilematrix = QtWidgets.QInputDialog()
+                    selected_tile_matrix, ok = input_dialog_tilematrix.getItem(self, self.tr("Select a tile matrix"), self.tr("Tile matrix :"), tile_matrix)
+                    if not ok or not selected_tile_matrix:
+                        return
+
+                styles = sorted(ows.contents[selected_layer].styles.keys())
+                if len(styles) == 1:
+                    selected_style = styles[0]
+                else:
+                    input_dialog_style = QtWidgets.QInputDialog()
+                    selected_style, ok = input_dialog_style.getItem(self, self.tr("Select a style"), self.tr("Style :"), styles)
+                    if not ok or not selected_style:
+                        return
+                crs = ows.tilematrixsets[selected_tile_matrix].crs
+
+                full_url = 'url=' + base_url + '?SERVICE%3DWMTS%26REQUEST%3DGetCapabilities' + \
+                           '&format=' + selected_format + '&styles=' + selected_style + '&version=' + version + '&crs=' + crs + \
+                           '&tileMatrixSet=' + selected_tile_matrix + '&layers=' + selected_layer
+            else:
+                return
+        except Exception as exc:
+            log(self.tr("Invalid {} url").format(layer_format), Qgis.Warning,
+                self.tr("URL") + " : " + base_url + " ;" + self.tr("Version") + " : " + version +
+                "\n" + "Error" + " : " + str(exc))
+            return
+        return full_url
 
     def updateItemData(self, item):
         if isinstance(item, CustomCatalogTreeWidgetItem):
-            if item.catalog_type == "node" or item.catalog_type == "catalog":
-                item.itemName = item.text(self.name_col_id)
-                item.itemType = self.tree.itemWidget(item, self.type_col_id).currentText()
-            if item.catalog_type == "layer":
-                item.itemGeom = self.tree.itemWidget(item, self.geom_col_id).currentText()
-            if item.catalog_type == "version":
-                item.itemVersion = item.text(self.version_col_id)
-            if item.catalog_type == "format":
-                item.itemFormat = self.tree.itemWidget(item, self.format_col_id).currentText()
-                item.itemLink = item.text(self.link_col_id)
-                item.itemAuth = self.tree.itemWidget(item, self.auth_col_id).currentText()
+            try:
+                if item.catalog_type == "node" or item.catalog_type == "catalog":
+                    item.itemName = item.text(self.name_col_id)
+                    item.itemType = self.tree.itemWidget(item, self.type_col_id).currentText()
+                if item.catalog_type == "layer":
+                    item.itemName = item.text(self.name_col_id)
+                    item.itemGeom = self.tree.itemWidget(item, self.geom_col_id).currentText()
+                if item.catalog_type == "version":
+                    item.itemVersion = item.text(self.version_col_id)
+                if item.catalog_type == "format":
+                    item.itemFormat = self.tree.itemWidget(item, self.format_col_id).currentText()
+                    item.itemLink = item.text(self.link_col_id)
+                    item.itemAuth = self.tree.itemWidget(item, self.auth_col_id).currentText()
+                self.resize_columns()
+            except Exception as exc:
+                # when an item is created, an error occur because itemWidgets do not exist
+                pass
 
     def __on_connexiondialog_closed(self):
         self.cnx_dialog.connectionDefined.disconnect()
