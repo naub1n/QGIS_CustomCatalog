@@ -160,6 +160,8 @@ def get_icon(data_type):
         icon = QtGui.QIcon(QgsApplication.iconPath("mIconPolygonLayer.svg"))
     elif data_type == "point":
         icon = QtGui.QIcon(QgsApplication.iconPath("mIconPointLayer.svg"))
+    elif data_type == "raster":
+        icon = QtGui.QIcon(QgsApplication.iconPath("mIconRaster.svg"))
     elif data_type == "node":
         icon = QtWidgets.QApplication.style().standardIcon(QtWidgets.QStyle.SP_DirIcon)
     elif data_type == "catalog":
@@ -301,7 +303,7 @@ class BuildCatalog:
 
 class CustomCatalogTreeWidgetItem(QtWidgets.QTreeWidgetItem):
     def __init__(self, parent=None, catalog_type="", editable_cols=[], editable=False):
-        super().__init__(parent)
+        super(CustomCatalogTreeWidgetItem, self).__init__(parent)
         self.catalog_type = catalog_type
         self.editable_cols = editable_cols
         self.parent = parent
