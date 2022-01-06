@@ -33,7 +33,7 @@
 import json
 import os
 
-from qgis.PyQt import QtCore, QtWidgets, QtGui
+from qgis.PyQt import QtCore, QtWidgets, QtGui, QtXml
 from qgis.core import QgsMessageLog, QgsApplication, Qgis, QgsRasterLayer, QgsVectorLayer, QgsProviderRegistry, \
     QgsDataSourceUri, QgsProject, QgsLayerDefinition
 from qgis.utils import iface
@@ -44,7 +44,8 @@ settings_file = os.path.join(os.path.dirname(__file__), '../conf/settings.json')
 def catalog_type_values():
     values = [
         'json',
-        'PostgreSQL'
+        'PostgreSQL',
+        'SQLite'
     ]
     return values
 
@@ -68,7 +69,8 @@ def layer_format_values():
         'GPKG',
         'SHP',
         'PostGIS',
-        'QLR'
+        'QLR',
+        'SpatiaLite'
     ]
     values.sort()
     return values
@@ -137,16 +139,24 @@ def read_catalogs(file_format, path, authid=None):
         with open(path) as f:
             catalogs = json.load(f)
         return catalogs
-    elif file_format == "PostgreSQL":
+    elif file_format in ["PostgreSQL", "SQLite"]:
+        if file_format == "PostgreSQL":
+            provider_name = 'postgres'
+            schema_separator = '.'
+        elif file_format == "SQLite":
+            provider_name = 'spatialite'
+            schema_separator = ''
         try:
-            provider = QgsProviderRegistry.instance().providerMetadata('postgres')
+            provider = QgsProviderRegistry.instance().providerMetadata(provider_name)
             uri = QgsDataSourceUri(path)
             uri.setAuthConfigId(authid)
             conn = provider.createConnection(uri.uri(), {})
             schema = uri.schema()
+            if schema: schema = '"' + schema + '"'
             table = uri.table()
             sql = uri.sql()
-            data = conn.executeSql('SELECT catalog_data FROM "' + schema + '"."' + table + '" WHERE ' + sql)[0][0]
+            data = conn.executeSql('SELECT catalog_data FROM ' + schema + schema_separator + '"' + table + '" ' +
+                                   'WHERE ' + sql)[0][0]
             catalogs = json.loads(data)
             return catalogs
         except Exception as exc:
@@ -206,6 +216,15 @@ def check_keys(item_catalog, setting_name):
         tr("Item name") + " : " + str(item_name) + " ; " + tr("Keys") + " : " + str(error_keys))
     return False
 
+def list_to_dict(list_keys, list_values):
+    res = {}
+    for key in list_keys:
+        for value in list_values:
+            res[key] = value
+            list_values.remove(value)
+            break
+    return res
+
 def load_layer(layer_title, layer_format, layer_link, layer_auth=None, check_only=False):
     layer = None
 
@@ -220,6 +239,8 @@ def load_layer(layer_title, layer_format, layer_link, layer_auth=None, check_onl
         layer = QgsVectorLayer(layer_link, layer_title, "ogr")
     elif layer_format == "PostGIS":
         layer = QgsVectorLayer(layer_link, layer_title, "postgres")
+    elif layer_format == "SpatiaLite":
+        layer = QgsVectorLayer(layer_link, layer_title, "spatialite")
     elif layer_format == "QLR":
         inst = QgsProject.instance()
         if check_only:

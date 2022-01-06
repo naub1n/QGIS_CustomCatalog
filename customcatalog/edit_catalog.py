@@ -465,15 +465,26 @@ class CustomCatalogEditCatalog(QtWidgets.QDialog, FORM_CLASS):
                     if new_path:
                         tree_item.setText(self.link_col_id, new_path)
                 elif layer_format == "PostGIS":
-                    self.cnx_dialog = CustomCatalogAddConnexionDialog(current_uri=current_path, edit_catalog=True)
+                    self.open_cnx_dialog(tree_item, current_uri=current_path, edit_catalog=True, db_type="PostgreSQL")
+                elif layer_format == "SpatiaLite":
+                    self.open_cnx_dialog(tree_item, current_uri=current_path, edit_catalog=True, db_type="SQLite")
+                    """self.cnx_dialog = CustomCatalogAddConnexionDialog(current_uri=current_path, edit_catalog=True, 
+                                                                      db_type="PostgreSQL")
                     self.cnx_dialog.connectionDefined.connect(lambda new_path: tree_item.setText(self.link_col_id, new_path))
                     self.cnx_dialog.dialogClosed.connect(self.__on_connexiondialog_closed)
-                    self.cnx_dialog.exec_()
+                    self.cnx_dialog.exec_()"""
                 elif layer_format == "WFS" or layer_format == "WMS" or layer_format == "WMTS":
                     if current_path:
                         layer_url = self.get_ows_layer(layer_format, current_path)
                         if layer_url:
                             tree_item.setText(self.link_col_id, layer_url)
+
+    def open_cnx_dialog(self, item, current_uri=None, edit_catalog=False, db_type=None):
+        self.cnx_dialog = CustomCatalogAddConnexionDialog(current_uri=current_uri, edit_catalog=edit_catalog,
+                                                          db_type=db_type)
+        self.cnx_dialog.connectionDefined.connect(lambda new_path: item.setText(self.link_col_id, new_path))
+        self.cnx_dialog.dialogClosed.connect(self.__on_connexiondialog_closed)
+        self.cnx_dialog.exec_()
 
     def get_ows_layer(self, layer_format, url):
         try:
@@ -634,6 +645,7 @@ class CustomCatalogEditCatalog(QtWidgets.QDialog, FORM_CLASS):
         new_file_path = dlg.getOpenFileName(None, self.tr("Select layer file"), current_dir, filter)[0]
         return new_file_path
 
+    # TODO
     def change_parent(self, item, new_parent):
         if isinstance(item, QtWidgets.QTreeWidgetItem):
             old_parent = item.parent()

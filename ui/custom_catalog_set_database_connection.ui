@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>528</width>
-    <height>447</height>
+    <height>499</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -39,16 +39,6 @@
         <string>Existing connexion</string>
        </property>
        <layout class="QGridLayout" name="gridLayout_2">
-        <item row="3" column="1">
-         <widget class="QComboBox" name="cbxTable"/>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="lblSchema_2">
-          <property name="text">
-           <string>Schema :</string>
-          </property>
-         </widget>
-        </item>
         <item row="1" column="1">
          <widget class="QComboBox" name="cbxCnx">
           <property name="sizePolicy">
@@ -56,6 +46,26 @@
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QComboBox" name="cbxTable"/>
+        </item>
+        <item row="4" column="0">
+         <widget class="QLabel" name="lblCbxGeom">
+          <property name="text">
+           <string>Geom :</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1">
+         <widget class="QComboBox" name="cbxGeom"/>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="lblSchema_2">
+          <property name="text">
+           <string>Schema :</string>
           </property>
          </widget>
         </item>
@@ -78,9 +88,6 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="1">
-         <widget class="QComboBox" name="cbxSchema"/>
-        </item>
         <item row="3" column="0">
          <widget class="QLabel" name="lblExistingTable">
           <property name="text">
@@ -88,15 +95,8 @@
           </property>
          </widget>
         </item>
-        <item row="4" column="1">
-         <widget class="QComboBox" name="cbxGeom"/>
-        </item>
-        <item row="4" column="0">
-         <widget class="QLabel" name="lblCbxGeom">
-          <property name="text">
-           <string>Geom :</string>
-          </property>
-         </widget>
+        <item row="2" column="1">
+         <widget class="QComboBox" name="cbxSchema"/>
         </item>
        </layout>
       </widget>
@@ -110,85 +110,99 @@
         <string>Custom connexion</string>
        </property>
        <layout class="QGridLayout" name="gridLayout">
-        <item row="0" column="0">
-         <widget class="QLabel" name="lblHost">
-          <property name="text">
-           <string>Host :</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QLineEdit" name="txbxHost"/>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="lblPort">
-          <property name="text">
-           <string>Port :</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="1">
-         <widget class="QLineEdit" name="txbxUser"/>
-        </item>
-        <item row="1" column="1">
-         <widget class="QLineEdit" name="txbxPort"/>
-        </item>
-        <item row="2" column="1">
-         <widget class="QLineEdit" name="txbxDb"/>
-        </item>
-        <item row="5" column="1">
-         <widget class="QLineEdit" name="txbxSchema"/>
-        </item>
-        <item row="5" column="0">
-         <widget class="QLabel" name="lblSchema">
-          <property name="text">
-           <string>Schema :</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="lblDb">
-          <property name="text">
-           <string>Database :</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0">
-         <widget class="QLabel" name="lblUser">
-          <property name="text">
-           <string>User :</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="0">
-         <widget class="QLabel" name="lblPass">
-          <property name="text">
-           <string>Password :</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="1">
-         <widget class="QLineEdit" name="txbxPass"/>
-        </item>
-        <item row="6" column="0">
+        <item row="7" column="0">
          <widget class="QLabel" name="lblTable">
           <property name="text">
            <string>Table :</string>
           </property>
          </widget>
         </item>
-        <item row="6" column="1">
-         <widget class="QLineEdit" name="txbxTable"/>
+        <item row="4" column="0">
+         <widget class="QLabel" name="lblUser">
+          <property name="text">
+           <string>User :</string>
+          </property>
+         </widget>
         </item>
-        <item row="7" column="1">
+        <item row="5" column="0">
+         <widget class="QLabel" name="lblPass">
+          <property name="text">
+           <string>Password :</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="1">
+         <widget class="QLineEdit" name="txbxPass">
+          <property name="echoMode">
+           <enum>QLineEdit::PasswordEchoOnEdit</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="lblDb">
+          <property name="text">
+           <string>Database :</string>
+          </property>
+         </widget>
+        </item>
+        <item row="8" column="1">
          <widget class="QLineEdit" name="txbxGeom"/>
         </item>
-        <item row="7" column="0">
+        <item row="8" column="0">
          <widget class="QLabel" name="lblTxbxGeom">
           <property name="text">
            <string>Geom :</string>
           </property>
          </widget>
+        </item>
+        <item row="7" column="1">
+         <widget class="QLineEdit" name="txbxTable"/>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="lblPort">
+          <property name="text">
+           <string>Port :</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="txbxHost"/>
+        </item>
+        <item row="3" column="1">
+         <widget class="QLineEdit" name="txbxDb"/>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="lblHost">
+          <property name="text">
+           <string>Host :</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="0">
+         <widget class="QLabel" name="lblSchema">
+          <property name="text">
+           <string>Schema :</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QLineEdit" name="txbxPort"/>
+        </item>
+        <item row="4" column="1">
+         <widget class="QLineEdit" name="txbxUser"/>
+        </item>
+        <item row="6" column="1">
+         <widget class="QLineEdit" name="txbxSchema"/>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="lblService">
+          <property name="text">
+           <string>Service :</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLineEdit" name="txbxService"/>
         </item>
        </layout>
       </widget>

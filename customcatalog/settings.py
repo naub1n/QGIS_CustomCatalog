@@ -39,6 +39,7 @@ from qgis.core import Qgis, QgsSettings
 from .globals import log, catalog_type_values, settings_file, load_settings, cbx_defaults_authid
 from .edit_catalog import CustomCatalogEditCatalog
 from .add_setting import CustomCatalogAddSettingDialog
+from .db_connection import CustomCatalogAddConnexionDialog
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), '../ui/custom_catalog_settings.ui'))
@@ -63,7 +64,7 @@ class CustomCatalogSettingsDialog(QtWidgets.QDialog, FORM_CLASS):
         self.type_col_name = self.tr("Type")
         self.link_col_id = 2
         self.link_col_name = self.tr("Link")
-        self.filedialog_col_id = 3
+        self.browse_col_id = 3
         self.filedialog_col_name = self.tr("")
         self.qgisauthconfigid_col_id = 4
         self.qgisauthconfigid_col_name = self.tr("Auth conf id")
@@ -142,17 +143,29 @@ class CustomCatalogSettingsDialog(QtWidgets.QDialog, FORM_CLASS):
 
         self.catalogDeleted.emit()
 
-    def __on_btn_filedialog_clicked(self, row_pos):
-        current_file_path = self.table.item(row_pos, self.link_col_id).text()
-        if os.path.exists(current_file_path):
-            current_dir = os.path.dirname(current_file_path)
-        else:
-            current_dir = None
-        dlg = QtWidgets.QFileDialog()
-        new_file_path = dlg.getOpenFileName(None, self.tr("Select setting file"), current_dir,
-                                            self.tr("JSON File") + " (*.json)")[0]
-        if new_file_path:
-            self.table.setItem(row_pos, self.link_col_id, QtWidgets.QTableWidgetItem(new_file_path))
+    def __on_btn_browse_clicked(self, row_pos):
+        current_path = self.table.item(row_pos, self.link_col_id).text()
+        source_type = self.table.cellWidget(row_pos, self.type_col_id).currentText()
+        if source_type == "json":
+            if os.path.exists(current_path):
+                current_dir = os.path.dirname(current_path)
+            else:
+                current_dir = None
+            dlg = QtWidgets.QFileDialog()
+            new_file_path = dlg.getOpenFileName(None, self.tr("Select setting file"), current_dir,
+                                                self.tr("JSON File") + " (*.json)")[0]
+            if new_file_path:
+                self.table.setItem(row_pos, self.link_col_id, QtWidgets.QTableWidgetItem(new_file_path))
+        elif source_type in ["PostgreSQL", "SQLite"]:
+            catalog_name = self.table.item(row_pos, self.catalog_col_id).text()
+            self.cnx_dialog = CustomCatalogAddConnexionDialog(catalog_name=catalog_name, current_uri=current_path, db_type=source_type)
+            self.cnx_dialog.connectionDefined.connect(self.table.item(row_pos, self.link_col_id).setText)
+            self.cnx_dialog.dialogClosed.connect(self.__on_connexiondialog_closed)
+            self.cnx_dialog.exec_()
+
+    def __on_connexiondialog_closed(self):
+        self.cnx_dialog.connectionDefined.disconnect()
+        self.cnx_dialog.dialogClosed.disconnect()
 
     def build_settings_dialog(self):
         col_labels = [self.catalog_col_name, self.type_col_name, self.link_col_name, self.filedialog_col_name,
@@ -186,8 +199,8 @@ class CustomCatalogSettingsDialog(QtWidgets.QDialog, FORM_CLASS):
         self.table.setItem(row_pos, self.link_col_id, QtWidgets.QTableWidgetItem(setting_link))
         btn = QtWidgets.QPushButton("...")
         btn.setMaximumWidth(30)
-        btn.clicked.connect(lambda: self.__on_btn_filedialog_clicked(row_pos))
-        self.table.setCellWidget(row_pos, self.filedialog_col_id, btn)
+        btn.clicked.connect(lambda: self.__on_btn_browse_clicked(row_pos))
+        self.table.setCellWidget(row_pos, self.browse_col_id, btn)
         self.table.setCellWidget(row_pos, self.qgisauthconfigid_col_id, cbx_defaults_authid(setting_authid))
 
     def resize_columns_tablewidget(self):

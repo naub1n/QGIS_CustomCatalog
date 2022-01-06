@@ -87,7 +87,7 @@ class CustomCatalogAddSettingDialog(QtWidgets.QDialog, FORM_CLASS):
             self.btnConnectDb.setVisible(False)
             self.btnOpenFile.setVisible(True)
             self.btnCreateFile.setVisible(True)
-        elif type == "PostgreSQL":
+        elif type in ["PostgreSQL", "SQLite"]:
             self.btnConnectDb.setVisible(True)
             self.btnOpenFile.setVisible(False)
             self.btnCreateFile.setVisible(False)
@@ -121,7 +121,8 @@ class CustomCatalogAddSettingDialog(QtWidgets.QDialog, FORM_CLASS):
     def __on_connect_clicked(self):
         if self.check_catalog_name():
             catalog_name = self.tbxName.text()
-            self.cnx_dialog = CustomCatalogAddConnexionDialog(catalog_name=catalog_name)
+            db_type = self.cbxType.currentText()
+            self.cnx_dialog = CustomCatalogAddConnexionDialog(catalog_name=catalog_name, db_type=db_type)
             self.cnx_dialog.connectionDefined.connect(self.tbxLink.setText)
             self.cnx_dialog.dialogClosed.connect(self.__on_connexiondialog_closed)
             self.cnx_dialog.exec_()
