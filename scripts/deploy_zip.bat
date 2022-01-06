@@ -5,4 +5,5 @@ pushd  %~dp0..
 
 @echo on
 pb_tool zip
+@echo off
 popd
