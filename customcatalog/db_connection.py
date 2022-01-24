@@ -52,7 +52,7 @@ class CustomCatalogAddConnexionDialog(QtWidgets.QDialog, FORM_CLASS):
         self.setupUi(self)
         self.settings = QSettings()
         # Define supported database
-        db_types = ["PostgreSQL", "SQLite"]
+        db_types = ["PostgreSQL", "SQLite", "Oracle"]
         # Add database types in combobox
         self.cbxDbType.addItems(db_types)
         # Init variables
@@ -150,13 +150,18 @@ class CustomCatalogAddConnexionDialog(QtWidgets.QDialog, FORM_CLASS):
                     schema = self.txbxSchema.text()
                     table = self.txbxTable.text()
                 fields = conn.fields(schema, table).names()
+                geom_field = conn.table(schema, table).geometryColumn()
                 self.cbxGeom.addItems(fields)
+                if geom_field and geom_field not in fields:
+                    self.cbxGeom.addItem(geom_field)
                 if self.edit_catalog:
-                    if "geom" in fields:
+                    if geom_field:
+                        self.cbxGeom.setCurrentText(geom_field)
+                    elif "geom" in fields:
                         self.cbxGeom.setCurrentText("geom")
 
-            except Exception:
-                pass
+            except Exception as exc:
+                log(str(exc), Qgis.Warning)
 
     def __on_cbxschema_changed(self):
         uri = self.set_uri()
@@ -173,8 +178,8 @@ class CustomCatalogAddConnexionDialog(QtWidgets.QDialog, FORM_CLASS):
                 else:
                     self.cbxTable.insertItem(0, "NEW TABLE")
                     self.cbxTable.setCurrentIndex(0)
-        except Exception:
-            pass
+        except Exception as exc:
+            log(str(exc), Qgis.Warning)
 
     def get_connections(self):
         if self.provider_grp != "" and self.provider_grp is not None:
@@ -189,10 +194,14 @@ class CustomCatalogAddConnexionDialog(QtWidgets.QDialog, FORM_CLASS):
             self.provider = QgsProviderRegistry.instance().providerMetadata('postgres')
             self.provider_grp = "PostgreSQL"
             self.schema_separator = "."
-        if self.db_type == "SQLite":
+        elif self.db_type == "SQLite":
             self.provider = QgsProviderRegistry.instance().providerMetadata('spatialite')
             self.provider_grp = "SpatiaLite"
             self.schema_separator = ""
+        elif self.db_type == "Oracle":
+            self.provider = QgsProviderRegistry.instance().providerMetadata('oracle')
+            self.provider_grp = "Oracle"
+            self.schema_separator = "."
         self.provider_key = self.provider.key()
 
     def set_db_type(self):
@@ -225,7 +234,7 @@ class CustomCatalogAddConnexionDialog(QtWidgets.QDialog, FORM_CLASS):
         uri = QgsDataSourceUri()
         if self.rbExistingCnx.isChecked():
             cnx_info = self.provider_grp + "/connections/" + self.cbxCnx.currentText() + "/"
-            if self.provider_key == "postgres":
+            if self.provider_key == "postgres" or self.provider_key == "oracle":
                 service = self.settings.value(cnx_info + "service")
                 auth_id = self.settings.value(cnx_info + "authcfg")
                 if service:
@@ -234,9 +243,15 @@ class CustomCatalogAddConnexionDialog(QtWidgets.QDialog, FORM_CLASS):
                     host = self.settings.value(cnx_info + "host")
                     port = self.settings.value(cnx_info + "port")
                     database = self.settings.value(cnx_info + "database")
-                    username = self.settings.value(cnx_info + "username")
-                    password = self.settings.value(cnx_info + "password")
-                    uri.setConnection(host, port, database, username, password)
+                    uri.setConnection(host, port, database, None, None)
+                    if auth_id:
+                        uri.setAuthConfigId(auth_id)
+                    else:
+                        uri.setUsername(self.settings.value(cnx_info + "username"))
+                        uri.setPassword(self.settings.value(cnx_info + "password"))
+                    #username = self.settings.value(cnx_info + "username")
+                    #password = self.settings.value(cnx_info + "password")
+                    #uri.setConnection(host, port, database, username, password)
             elif self.provider_key == "spatialite":
                 sqlitepath = self.settings.value(cnx_info + "sqlitepath")
                 uri.setDatabase(sqlitepath)

@@ -70,7 +70,8 @@ def layer_format_values():
         'SHP',
         'PostGIS',
         'QLR',
-        'SpatiaLite'
+        'SpatiaLite',
+        'Oracle'
     ]
     values.sort()
     return values
@@ -239,6 +240,8 @@ def load_layer(layer_title, layer_format, layer_link, layer_auth=None, check_onl
         layer = QgsVectorLayer(layer_link, layer_title, "ogr")
     elif layer_format == "PostGIS":
         layer = QgsVectorLayer(layer_link, layer_title, "postgres")
+    elif layer_format == "Oracle":
+        layer = QgsVectorLayer(layer_link, layer_title, "oracle")
     elif layer_format == "SpatiaLite":
         layer = QgsVectorLayer(layer_link, layer_title, "spatialite")
     elif layer_format == "QLR":
