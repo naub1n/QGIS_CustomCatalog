@@ -35,6 +35,7 @@ import os
 
 from qgis.PyQt import QtWidgets, uic, QtCore
 from qgis.core import Qgis, QgsSettings
+from urllib import parse
 
 from .globals import log, catalog_type_values, settings_file, load_settings, cbx_defaults_authid
 from .edit_catalog import CustomCatalogEditCatalog
@@ -75,6 +76,7 @@ class CustomCatalogSettingsDialog(QtWidgets.QDialog, FORM_CLASS):
         self.btnAdd.clicked.connect(self.__on_btnadd_clicked)
         self.btnSave.clicked.connect(self.sav_settings)
         self.btnEdit.clicked.connect(self.__on_btnedit_clicked)
+        self.table.itemSelectionChanged.connect(self.__on_selection_changed)
 
     def tr(self, message):
         """Get the translation for a string using Qt translation API.
@@ -86,6 +88,19 @@ class CustomCatalogSettingsDialog(QtWidgets.QDialog, FORM_CLASS):
         :rtype: QString
         """
         return QtCore.QCoreApplication.translate('CustomCatalogSettingsDialog', message)
+
+    def __on_selection_changed(self):
+        rows = []
+        for index in self.table.selectedIndexes():
+            rows.append(index.row())
+
+        if len(rows) == 1:
+            catalog_path = self.table.item(rows[0], self.link_col_id).text()
+            # check if path is url. Disable edit button if it's an url
+            if parse.urlparse(catalog_path).scheme in ['http', 'https']:
+                self.btnEdit.setEnabled(False)
+            else:
+                self.btnEdit.setEnabled(True)
 
     def __on_btnadd_clicked(self):
         self.add_dialog = CustomCatalogAddSettingDialog()
