@@ -169,8 +169,12 @@ class CustomCatalogAddConnexionDialog(QtWidgets.QDialog, FORM_CLASS):
         conn = self.provider.createConnection(uri.uri(), {})
         try:
             tables = conn.tables(self.cbxSchema.currentText())
+            tables_names = []
             for table in tables:
-                self.cbxTable.addItem(table.tableName())
+                tables_names.append(table.tableName())
+            tables_names.sort(key=lambda v: v.upper())
+            self.cbxTable.addItems(tables_names)
+
             if not self.edit_catalog:
                 tables = [self.cbxTable.itemText(i) for i in range(self.cbxTable.count())]
                 if self.default_catalog_table_name in tables:
@@ -178,6 +182,7 @@ class CustomCatalogAddConnexionDialog(QtWidgets.QDialog, FORM_CLASS):
                 else:
                     self.cbxTable.insertItem(0, "NEW TABLE")
                     self.cbxTable.setCurrentIndex(0)
+
         except Exception as exc:
             log(str(exc), Qgis.Warning)
 
@@ -185,9 +190,12 @@ class CustomCatalogAddConnexionDialog(QtWidgets.QDialog, FORM_CLASS):
         if self.provider_grp != "" and self.provider_grp is not None:
             self.cbxCnx.clear()
             self.settings.beginGroup(self.provider_grp + "/connections")
-            self.cbxCnx.addItems(self.settings.childGroups())
-            #self.cbxCnx.addItems(self.settings.allKeys())
+            cnx = self.settings.childGroups()
             self.settings.endGroup()
+
+            cnx.sort(key=lambda v: v.upper())
+            self.cbxCnx.addItems(cnx)
+
 
     def set_provider(self):
         if self.db_type == "PostgreSQL":
@@ -226,7 +234,9 @@ class CustomCatalogAddConnexionDialog(QtWidgets.QDialog, FORM_CLASS):
             if self.provider_key == "spatialite":
                 self.cbxSchema.addItem("")
             else:
-                self.cbxSchema.addItems(conn.schemas())
+                schemas = conn.schemas()
+                schemas.sort(key=lambda v: v.upper())
+                self.cbxSchema.addItems(schemas)
         except Exception:
             pass
 
