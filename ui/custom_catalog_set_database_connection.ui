@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>528</width>
-    <height>499</height>
+    <height>535</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -33,74 +33,6 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
-      <widget class="QGroupBox" name="gbxCustomCnx">
-       <property name="title">
-        <string>Existing connexion</string>
-       </property>
-       <layout class="QGridLayout" name="gridLayout_2">
-        <item row="1" column="1">
-         <widget class="QComboBox" name="cbxCnx">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="1">
-         <widget class="QComboBox" name="cbxTable"/>
-        </item>
-        <item row="4" column="0">
-         <widget class="QLabel" name="lblCbxGeom">
-          <property name="text">
-           <string>Geom :</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="1">
-         <widget class="QComboBox" name="cbxGeom"/>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="lblSchema_2">
-          <property name="text">
-           <string>Schema :</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="lblCnx">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>Connexion :</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0">
-         <widget class="QLabel" name="lblExistingTable">
-          <property name="text">
-           <string>Table :</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="QComboBox" name="cbxSchema"/>
-        </item>
-       </layout>
-      </widget>
-     </item>
      <item row="0" column="1">
       <widget class="QComboBox" name="cbxDbType"/>
      </item>
@@ -110,13 +42,6 @@
         <string>Custom connexion</string>
        </property>
        <layout class="QGridLayout" name="gridLayout">
-        <item row="7" column="0">
-         <widget class="QLabel" name="lblTable">
-          <property name="text">
-           <string>Table :</string>
-          </property>
-         </widget>
-        </item>
         <item row="4" column="0">
          <widget class="QLabel" name="lblUser">
           <property name="text">
@@ -124,10 +49,10 @@
           </property>
          </widget>
         </item>
-        <item row="5" column="0">
-         <widget class="QLabel" name="lblPass">
+        <item row="7" column="0">
+         <widget class="QLabel" name="lblTable">
           <property name="text">
-           <string>Password :</string>
+           <string>Table :</string>
           </property>
          </widget>
         </item>
@@ -138,15 +63,22 @@
           </property>
          </widget>
         </item>
+        <item row="5" column="0">
+         <widget class="QLabel" name="lblPass">
+          <property name="text">
+           <string>Password :</string>
+          </property>
+         </widget>
+        </item>
+        <item row="8" column="1">
+         <widget class="QLineEdit" name="txbxGeom"/>
+        </item>
         <item row="3" column="0">
          <widget class="QLabel" name="lblDb">
           <property name="text">
            <string>Database :</string>
           </property>
          </widget>
-        </item>
-        <item row="8" column="1">
-         <widget class="QLineEdit" name="txbxGeom"/>
         </item>
         <item row="8" column="0">
          <widget class="QLabel" name="lblTxbxGeom">
@@ -155,8 +87,12 @@
           </property>
          </widget>
         </item>
-        <item row="7" column="1">
-         <widget class="QLineEdit" name="txbxTable"/>
+        <item row="1" column="0">
+         <widget class="QLabel" name="lblHost">
+          <property name="text">
+           <string>Host :</string>
+          </property>
+         </widget>
         </item>
         <item row="2" column="0">
          <widget class="QLabel" name="lblPort">
@@ -165,18 +101,14 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="1">
-         <widget class="QLineEdit" name="txbxHost"/>
+        <item row="7" column="1">
+         <widget class="QLineEdit" name="txbxTable"/>
         </item>
         <item row="3" column="1">
          <widget class="QLineEdit" name="txbxDb"/>
         </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="lblHost">
-          <property name="text">
-           <string>Host :</string>
-          </property>
-         </widget>
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="txbxHost"/>
         </item>
         <item row="6" column="0">
          <widget class="QLabel" name="lblSchema">
@@ -204,6 +136,27 @@
         <item row="0" column="1">
          <widget class="QLineEdit" name="txbxService"/>
         </item>
+        <item row="9" column="1">
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
+           <widget class="QLineEdit" name="txbxFilterCu"/>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btnFilterCu">
+            <property name="text">
+             <string>Filter...</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="9" column="0">
+         <widget class="QLabel" name="lblFilterCu">
+          <property name="text">
+           <string>Filter :</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </widget>
      </item>
@@ -215,6 +168,95 @@
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QGroupBox" name="gbxCustomCnx">
+       <property name="title">
+        <string>Existing connexion</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="4" column="0">
+         <widget class="QLabel" name="lblCbxGeom">
+          <property name="text">
+           <string>Geom :</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QComboBox" name="cbxTable"/>
+        </item>
+        <item row="1" column="1">
+         <widget class="QComboBox" name="cbxCnx">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="0">
+         <widget class="QLabel" name="lblFilterEx">
+          <property name="text">
+           <string>Filter :</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1">
+         <widget class="QComboBox" name="cbxGeom"/>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="lblExistingTable">
+          <property name="text">
+           <string>Table :</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="lblCnx">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Connexion :</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QComboBox" name="cbxSchema"/>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="lblSchema_2">
+          <property name="text">
+           <string>Schema :</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="1">
+         <layout class="QHBoxLayout" name="horizontalLayout">
+          <item>
+           <widget class="QLineEdit" name="txbxFilterEx"/>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btnFilterEx">
+            <property name="text">
+             <string>Filter...</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
       </widget>
      </item>
     </layout>
