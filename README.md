@@ -1,4 +1,4 @@
-<img src="icon.png" width="20"> CustomCatalog plugin
+## <img src="icon.png" width="20"> CustomCatalog plugin:
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
@@ -23,7 +23,7 @@
     </td>
 </table>
 
-With this plugin, you can create your own layers tree based on multiple versions and multiple sources.
+With this plugin, you can create your own layers tree from multiple versions and multiple sources.
 
 <img src="doc/screenshots/catalog_result.jpg">
 
@@ -43,7 +43,7 @@ Go to plugin `Settings`
 ### 1. Create new setting
 
 * Click to `Add` button
-* Define a `Name`. required !
+* Define a `Name`. <span style="color:red">required !</span>
 * Choose setting `Type` : json, PostgreSQL or SQLite
   * With `json` - you can open or create a new json file. You can also define an URL but it's read-only, `Edit` button will be disabled. 
   * With `PostgreSQL` - click `connect` button and a new dialog window opens. You should select the table which contains catalogs. Select `NEW TABLE` to create a new table in database. The table name will be `catalogs`. Be careful, the setting name should exist otherwise a new record with `Name` defined in settings dialog
@@ -71,6 +71,10 @@ You can add or create as many setting as you want.
           * Exemple 2 : `service='myservice' table="myschema"."mytable" (geom)`
           * Exemple 3 : `dbname='mydb' host=db.mydomain.eu port=5432 user='myusername' password='mypassword' table="myschema"."mytable" (geom)`
         * `QLR`, `GPKG`, `SHP` : You don't need to edit Link column. Click on browse button (`...`) to open the OpenFileDialog. With `GPKG` format, plugin try to find layers. Select one.
+
+#### Plugin diagram
+
+<img src="doc/screenshots/plugin_diagram.png">
 
 ## Add a layer to canvas
 
