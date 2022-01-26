@@ -34,7 +34,8 @@ import os
 
 from PyQt5.QtCore import QSettings
 from qgis.PyQt import QtWidgets, uic, QtCore
-from qgis.core import Qgis, QgsDataSourceUri, QgsProviderRegistry
+from qgis.core import Qgis, QgsDataSourceUri, QgsProviderRegistry, QgsVectorLayer
+from qgis.gui import QgsQueryBuilder
 from .globals import log, init_catalog_data
 from qgis.utils import spatialite_connect
 
@@ -52,7 +53,7 @@ class CustomCatalogAddConnexionDialog(QtWidgets.QDialog, FORM_CLASS):
         self.setupUi(self)
         self.settings = QSettings()
         # Define supported database
-        db_types = ["PostgreSQL", "SQLite"]
+        db_types = ["PostgreSQL", "SQLite", "Oracle"]
         # Add database types in combobox
         self.cbxDbType.addItems(db_types)
         # Init variables
@@ -75,8 +76,14 @@ class CustomCatalogAddConnexionDialog(QtWidgets.QDialog, FORM_CLASS):
         # Default state geom widgets
         self.cbxGeom.setEnabled(False)
         self.txbxGeom.setEnabled(False)
+        self.txbxFilterEx.setEnabled(False)
+        self.txbxFilterCu.setEnabled(False)
+        self.btnFilterEx.setEnabled(False)
+        self.btnFilterCu.setEnabled(False)
         self.lblCbxGeom.setEnabled(False)
         self.lblTxbxGeom.setEnabled(False)
+        self.lblFilterEx.setEnabled(False)
+        self.lblFilterCu.setEnabled(False)
         # init values
         self.set_db_type()
         # call method when connexion type is modified
@@ -95,6 +102,9 @@ class CustomCatalogAddConnexionDialog(QtWidgets.QDialog, FORM_CLASS):
         self.cbxSchema.currentIndexChanged.connect(self.__on_cbxschema_changed)
         # call method when table is modified
         self.cbxTable.currentIndexChanged.connect(self.__on_cbxtable_changed)
+        # call method when filter buttons clicked
+        self.btnFilterEx.clicked.connect(self.__on_btnfilterex_clicked)
+        self.btnFilterCu.clicked.connect(self.__on_btnfiltercu_clicked)
         # check if current_uri is set
         if self.current_uri:
             self.read_current_uri()
@@ -102,8 +112,14 @@ class CustomCatalogAddConnexionDialog(QtWidgets.QDialog, FORM_CLASS):
         if self.edit_catalog:
             self.cbxGeom.setEnabled(True)
             self.txbxGeom.setEnabled(True)
+            self.txbxFilterEx.setEnabled(True)
+            self.txbxFilterCu.setEnabled(True)
+            self.btnFilterEx.setEnabled(True)
+            self.btnFilterCu.setEnabled(True)
             self.lblCbxGeom.setEnabled(True)
             self.lblTxbxGeom.setEnabled(True)
+            self.lblFilterEx.setEnabled(True)
+            self.lblFilterCu.setEnabled(True)
 
     def tr(self, message):
         """Get the translation for a string using Qt translation API.
@@ -128,11 +144,18 @@ class CustomCatalogAddConnexionDialog(QtWidgets.QDialog, FORM_CLASS):
         self.txbxUser.setText(uri.username())
         self.txbxPass.setText(uri.password())
         self.txbxGeom.setText(uri.geometryColumn())
+        self.txbxFilterCu.setText(uri.sql())
 
     def lock_database_type(self, lock):
         if lock:
             self.cbxDbType.setCurrentText(self.db_type)
             self.cbxDbType.setEnabled(False)
+
+    def __on_btnfilterex_clicked(self):
+        self.open_query_builder()
+
+    def __on_btnfiltercu_clicked(self):
+        self.open_query_builder()
 
     def __on_cbxdbtype_changed(self):
         self.set_db_type()
@@ -150,13 +173,18 @@ class CustomCatalogAddConnexionDialog(QtWidgets.QDialog, FORM_CLASS):
                     schema = self.txbxSchema.text()
                     table = self.txbxTable.text()
                 fields = conn.fields(schema, table).names()
+                geom_field = conn.table(schema, table).geometryColumn()
                 self.cbxGeom.addItems(fields)
+                if geom_field and geom_field not in fields:
+                    self.cbxGeom.addItem(geom_field)
                 if self.edit_catalog:
-                    if "geom" in fields:
+                    if geom_field:
+                        self.cbxGeom.setCurrentText(geom_field)
+                    elif "geom" in fields:
                         self.cbxGeom.setCurrentText("geom")
 
-            except Exception:
-                pass
+            except Exception as exc:
+                log(str(exc), Qgis.Warning)
 
     def __on_cbxschema_changed(self):
         uri = self.set_uri()
@@ -164,8 +192,12 @@ class CustomCatalogAddConnexionDialog(QtWidgets.QDialog, FORM_CLASS):
         conn = self.provider.createConnection(uri.uri(), {})
         try:
             tables = conn.tables(self.cbxSchema.currentText())
+            tables_names = []
             for table in tables:
-                self.cbxTable.addItem(table.tableName())
+                tables_names.append(table.tableName())
+            tables_names.sort(key=lambda v: v.upper())
+            self.cbxTable.addItems(tables_names)
+
             if not self.edit_catalog:
                 tables = [self.cbxTable.itemText(i) for i in range(self.cbxTable.count())]
                 if self.default_catalog_table_name in tables:
@@ -173,26 +205,34 @@ class CustomCatalogAddConnexionDialog(QtWidgets.QDialog, FORM_CLASS):
                 else:
                     self.cbxTable.insertItem(0, "NEW TABLE")
                     self.cbxTable.setCurrentIndex(0)
-        except Exception:
-            pass
+
+        except Exception as exc:
+            log(str(exc), Qgis.Warning)
 
     def get_connections(self):
         if self.provider_grp != "" and self.provider_grp is not None:
             self.cbxCnx.clear()
             self.settings.beginGroup(self.provider_grp + "/connections")
-            self.cbxCnx.addItems(self.settings.childGroups())
-            #self.cbxCnx.addItems(self.settings.allKeys())
+            cnx = self.settings.childGroups()
             self.settings.endGroup()
+
+            cnx.sort(key=lambda v: v.upper())
+            self.cbxCnx.addItems(cnx)
+
 
     def set_provider(self):
         if self.db_type == "PostgreSQL":
             self.provider = QgsProviderRegistry.instance().providerMetadata('postgres')
             self.provider_grp = "PostgreSQL"
             self.schema_separator = "."
-        if self.db_type == "SQLite":
+        elif self.db_type == "SQLite":
             self.provider = QgsProviderRegistry.instance().providerMetadata('spatialite')
             self.provider_grp = "SpatiaLite"
             self.schema_separator = ""
+        elif self.db_type == "Oracle":
+            self.provider = QgsProviderRegistry.instance().providerMetadata('oracle')
+            self.provider_grp = "Oracle"
+            self.schema_separator = "."
         self.provider_key = self.provider.key()
 
     def set_db_type(self):
@@ -217,15 +257,33 @@ class CustomCatalogAddConnexionDialog(QtWidgets.QDialog, FORM_CLASS):
             if self.provider_key == "spatialite":
                 self.cbxSchema.addItem("")
             else:
-                self.cbxSchema.addItems(conn.schemas())
+                schemas = conn.schemas()
+                schemas.sort(key=lambda v: v.upper())
+                self.cbxSchema.addItems(schemas)
         except Exception:
             pass
+
+    def open_query_builder(self):
+        uri = self.set_layer_uri()
+        if uri:
+            layer = QgsVectorLayer(uri.uri(), "", self.provider_key)
+            if layer.isValid():
+                qb = QgsQueryBuilder(layer, self)
+
+                if self.rbExistingCnx.isChecked():
+                    txbx_filter = self.txbxFilterEx
+
+                else:
+                    txbx_filter = self.txbxFilterCu
+
+                if qb.exec():
+                    txbx_filter.setText(qb.sql())
 
     def set_uri(self):
         uri = QgsDataSourceUri()
         if self.rbExistingCnx.isChecked():
             cnx_info = self.provider_grp + "/connections/" + self.cbxCnx.currentText() + "/"
-            if self.provider_key == "postgres":
+            if self.provider_key == "postgres" or self.provider_key == "oracle":
                 service = self.settings.value(cnx_info + "service")
                 auth_id = self.settings.value(cnx_info + "authcfg")
                 if service:
@@ -234,9 +292,15 @@ class CustomCatalogAddConnexionDialog(QtWidgets.QDialog, FORM_CLASS):
                     host = self.settings.value(cnx_info + "host")
                     port = self.settings.value(cnx_info + "port")
                     database = self.settings.value(cnx_info + "database")
-                    username = self.settings.value(cnx_info + "username")
-                    password = self.settings.value(cnx_info + "password")
-                    uri.setConnection(host, port, database, username, password)
+                    uri.setConnection(host, port, database, None, None)
+                    if auth_id:
+                        uri.setAuthConfigId(auth_id)
+                    else:
+                        uri.setUsername(self.settings.value(cnx_info + "username"))
+                        uri.setPassword(self.settings.value(cnx_info + "password"))
+                    #username = self.settings.value(cnx_info + "username")
+                    #password = self.settings.value(cnx_info + "password")
+                    #uri.setConnection(host, port, database, username, password)
             elif self.provider_key == "spatialite":
                 sqlitepath = self.settings.value(cnx_info + "sqlitepath")
                 uri.setDatabase(sqlitepath)
@@ -253,29 +317,33 @@ class CustomCatalogAddConnexionDialog(QtWidgets.QDialog, FORM_CLASS):
                 uri.setConnection(host, port, database, username, password)
         return uri
 
-    def __on_ok_clicked(self):
+    def set_layer_uri(self):
         uri = self.set_uri()
         try:
             if self.rbExistingCnx.isChecked():
                 schema = self.cbxSchema.currentText()
                 table = self.cbxTable.currentText()
                 geom = self.cbxGeom.currentText()
+                filter = self.txbxFilterEx.text()
             else:
                 schema = self.txbxSchema.text()
                 table = self.txbxTable.text()
                 geom = self.txbxGeom.text()
+                filter = self.txbxFilterCu.text()
 
             if self.edit_catalog:
                 uri.setSchema(schema)
                 uri.setTable(table)
                 uri.setGeometryColumn(geom)
+                uri.setSql(filter)
             else:
                 default_catalog_data = init_catalog_data(self.catalog)
                 conn = self.provider.createConnection(uri.uri(), {})
                 sql_insert = "INSERT INTO {}{}{} (id, catalog_data) VALUES ('{}','{}');"
                 sql_check_catalog = "SELECT count(id) as nb_catalogs FROM {}{}{} WHERE id='{}';"
                 sql_create = "CREATE TABLE {}{}{}(id character varying(30) NOT NULL, catalog_data json, PRIMARY KEY (id));"
-                uri.setDataSource(aSchema=schema, aTable=table, aGeometryColumn=None, aSql="id = '{}'".format(self.catalog))
+                uri.setDataSource(aSchema=schema, aTable=table, aGeometryColumn=None,
+                                  aSql="id = '{}'".format(self.catalog))
                 if table == "NEW TABLE" or table is None or table == "":
                     # Init messagebox
                     dialog = self.create_table_dialog()
@@ -284,7 +352,8 @@ class CustomCatalogAddConnexionDialog(QtWidgets.QDialog, FORM_CLASS):
                     if create_table_response == QtWidgets.QMessageBox.Yes:
                         table = self.default_catalog_table_name
                         conn.executeSql(sql_create.format(schema, self.schema_separator, table))
-                        conn.executeSql(sql_insert.format(schema, self.schema_separator, table, self.catalog, default_catalog_data))
+                        conn.executeSql(
+                            sql_insert.format(schema, self.schema_separator, table, self.catalog, default_catalog_data))
                         uri.setTable(table)
                 else:
                     tables = []
@@ -296,9 +365,11 @@ class CustomCatalogAddConnexionDialog(QtWidgets.QDialog, FORM_CLASS):
                         create_table_response = dialog.exec()
                         if create_table_response == QtWidgets.QMessageBox.Yes:
                             conn.executeSql(sql_create.format(schema, self.schema_separator, table))
-                            conn.executeSql(sql_insert.format(schema, self.schema_separator, table, self.catalog, default_catalog_data))
+                            conn.executeSql(sql_insert.format(schema, self.schema_separator, table, self.catalog,
+                                                              default_catalog_data))
                     # check if catalog exists in table
-                    check = conn.executeSql(sql_check_catalog.format(schema, self.schema_separator, table, self.catalog))
+                    check = conn.executeSql(
+                        sql_check_catalog.format(schema, self.schema_separator, table, self.catalog))
                     if check == [[0]]:
                         # Init messagebox
                         insert_catalog_dialog = QtWidgets.QMessageBox()
@@ -309,13 +380,20 @@ class CustomCatalogAddConnexionDialog(QtWidgets.QDialog, FORM_CLASS):
                         # Insert data if user press yes
                         create_table_response = insert_catalog_dialog.exec()
                         if create_table_response == QtWidgets.QMessageBox.Yes:
-                            conn.executeSql(sql_insert.format(schema, self.schema_separator, table, self.catalog, default_catalog_data))
+                            conn.executeSql(sql_insert.format(schema, self.schema_separator, table, self.catalog,
+                                                              default_catalog_data))
+            return uri
 
+        except Exception as exc:
+            return None
+            log(str(exc), Qgis.Warning)
+
+    def __on_ok_clicked(self):
+        uri = self.set_layer_uri()
+        if uri:
             uri.setAuthConfigId(None)
             self.connectionDefined.emit(uri.uri(expandAuthConfig=False))
             self.close()
-        except Exception as exc:
-            log(str(exc), Qgis.Warning)
 
     def create_table_dialog(self):
         dialog = QtWidgets.QMessageBox()

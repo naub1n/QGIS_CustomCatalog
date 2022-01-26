@@ -191,7 +191,7 @@ class CustomCatalogDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         for setting in self.settings['catalogs']:
             self.setting_name = setting['name']
             # read catalogs
-            catalogs = read_catalogs(setting['type'], setting['link'])
+            catalogs = read_catalogs(setting['type'], setting['link'], setting['qgisauthconfigid'])
             if catalogs is None:
                 log(self.tr("Unable to read setting") + " " + self.setting_name, Qgis.Critical)
             else:

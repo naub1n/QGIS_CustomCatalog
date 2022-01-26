@@ -5,3 +5,5 @@ __pycache__/
 # Build data pb_tool
 zip_build/
 **/help/build/
+
+.idea/

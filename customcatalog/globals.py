@@ -37,6 +37,7 @@ from qgis.PyQt import QtCore, QtWidgets, QtGui, QtXml
 from qgis.core import QgsMessageLog, QgsApplication, Qgis, QgsRasterLayer, QgsVectorLayer, QgsProviderRegistry, \
     QgsDataSourceUri, QgsProject, QgsLayerDefinition
 from qgis.utils import iface
+from urllib import parse, request
 
 settings_file = os.path.join(os.path.dirname(__file__), '../conf/settings.json')
 
@@ -70,7 +71,8 @@ def layer_format_values():
         'SHP',
         'PostGIS',
         'QLR',
-        'SpatiaLite'
+        'SpatiaLite',
+        'Oracle'
     ]
     values.sort()
     return values
@@ -131,14 +133,21 @@ def read_catalogs(file_format, path, authid=None):
         if path is None or path == "":
             filePath = os.path.dirname(__file__)
             path = os.path.join(filePath, '../catalog/default_catalog.json')
-        # read catalogs
-        elif not os.path.isfile(path):
-            log(tr("Catalog path error"), Qgis.Critical, path + " " + tr("does not exists"))
-            return
 
-        with open(path) as f:
-            catalogs = json.load(f)
+        if parse.urlparse(path).scheme in ['http', 'https']:
+            f = request.urlopen(path)
+
+        else:
+            if not os.path.isfile(path):
+                log(tr("Catalog path error"), Qgis.Critical, path + " " + tr("does not exists"))
+                return
+
+            else:
+                f = open(path)
+
+        catalogs = json.load(f)
         return catalogs
+
     elif file_format in ["PostgreSQL", "SQLite"]:
         if file_format == "PostgreSQL":
             provider_name = 'postgres'
@@ -239,6 +248,8 @@ def load_layer(layer_title, layer_format, layer_link, layer_auth=None, check_onl
         layer = QgsVectorLayer(layer_link, layer_title, "ogr")
     elif layer_format == "PostGIS":
         layer = QgsVectorLayer(layer_link, layer_title, "postgres")
+    elif layer_format == "Oracle":
+        layer = QgsVectorLayer(layer_link, layer_title, "oracle")
     elif layer_format == "SpatiaLite":
         layer = QgsVectorLayer(layer_link, layer_title, "spatialite")
     elif layer_format == "QLR":

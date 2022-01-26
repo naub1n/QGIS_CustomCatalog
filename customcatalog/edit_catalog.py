@@ -466,6 +466,14 @@ class CustomCatalogEditCatalog(QtWidgets.QDialog, FORM_CLASS):
                         tree_item.setText(self.link_col_id, new_path)
                 elif layer_format == "PostGIS":
                     self.open_cnx_dialog(tree_item, current_uri=current_path, edit_catalog=True, db_type="PostgreSQL")
+                elif layer_format == "Oracle":
+                    # Check QGIS version to use Oracle provider method 'createConnection'. 3.18 required
+                    qgisVersionMajor = int(Qgis.QGIS_VERSION.split(".")[0])
+                    qgisVersionMinor = int(Qgis.QGIS_VERSION.split(".")[1])
+                    if qgisVersionMajor >= 3 and qgisVersionMinor >= 18:
+                        self.open_cnx_dialog(tree_item, current_uri=current_path, edit_catalog=True, db_type="Oracle")
+                    else:
+                        log(self.tr("Qgis minimum version required is 3.18 to use Oracle provider"), Qgis.Warning)
                 elif layer_format == "SpatiaLite":
                     self.open_cnx_dialog(tree_item, current_uri=current_path, edit_catalog=True, db_type="SQLite")
                     """self.cnx_dialog = CustomCatalogAddConnexionDialog(current_uri=current_path, edit_catalog=True, 
