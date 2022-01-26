@@ -42,15 +42,17 @@ Go to plugin `Settings`
 
 ### 1. Create new setting
 
+N.B. : a setting can contain many catalogs but during development, it seemed easier to have only one catalog per setting. So one setting = one catalog.
+
 * Click to `Add` button
-* Define a `Name`. <span style="color:red">required !</span>
+* Define a `Name`. ⚠️️ Required !
 * Choose setting `Type` : json, PostgreSQL or SQLite
   * With `json` - you can open or create a new json file. You can also define an URL but it's read-only, `Edit` button will be disabled. 
-  * With `PostgreSQL` - click `connect` button and a new dialog window opens. You should select the table which contains catalogs. Select `NEW TABLE` to create a new table in database. The table name will be `catalogs`. Be careful, the setting name should exist otherwise a new record with `Name` defined in settings dialog
+  * With `PostgreSQL` - click `connect` button and a new dialog window opens. Select the table which contains catalogs. Select `NEW TABLE` to create a new table in database. The table name will be `catalogs`. Be careful, the setting name must exist otherwise a new record with `Name`, defined in settings dialog, will be created in table.
   * With `SQLite` - idem PostgreSQL
 * Choose an `Auth Id` to connect to database (Only for PostgreSQL and SQLite). Connection dialog don't send username and password, or authentication id, when you use existing connection.
 
-You can add or create as many setting as you want.
+You can add or create as many settings as you want.
 
 <img src="doc/screenshots/multiple_catalogs_result.jpg">
 
@@ -66,10 +68,10 @@ You can add or create as many setting as you want.
       * A `format` is defined by layer link. Choose a format in combobox and click to the browse button (`...`). The Name column is automaticaly modified with the Format column, it's only to read easily the tree.
         * `WFS`, `WMS`, `WMTS` : Add url with version value in Link column. Then, click on browse button (`...`). Plugin try to find layers. Select layer and the full url will be send in Link column.
         Example : `https://wxs.ign.fr/administratif/geoportail/wfs?version=2.0.0`
-        * `Spatialite`, `Oracle`, `PostGIS`: You don't need to edit Link column. Click on browse button (`...`) to open connection dialog. Connection dialog don't send username and password, or authentication id, when you use existing connection. So, choose an `Auth Id` which will be saved otherwise user will have to define username and password in prompt dialog. You can also define username and password in Link column. N.B. : QGIS 3.18+ needed to open Oracle database with `createConnection` method ([commit](https://github.com/qgis/QGIS/commit/7b77243562f2c1b506143418d547ddba7392a70c)).
-          * Exemple 1 : `dbname='mydb' host=db.mydomain.eu port=5432 table="myschema"."mytable" (geom)`
-          * Exemple 2 : `service='myservice' table="myschema"."mytable" (geom)`
-          * Exemple 3 : `dbname='mydb' host=db.mydomain.eu port=5432 user='myusername' password='mypassword' table="myschema"."mytable" (geom)`
+        * `Spatialite`, `Oracle`, `PostGIS`: You don't need to edit Link column. Click on browse button (`...`) to open connection dialog. Connection dialog don't send username and password, or authentication id, when you use existing connection. So, choose an `Auth Id` which will be saved otherwise user will have to define username and password in prompt dialog. You can also define username and password in Link column. ⚠️️ QGIS 3.18+ needed to open Oracle database with `createConnection` method ([commit](https://github.com/qgis/QGIS/commit/7b77243562f2c1b506143418d547ddba7392a70c)).
+          * Example 1 : `dbname='mydb' host=db.mydomain.eu port=5432 table="myschema"."mytable" (geom)`
+          * Example 2 : `service='myservice' table="myschema"."mytable" (geom)`
+          * Example 3 : `dbname='mydb' host=db.mydomain.eu port=5432 user='myusername' password='mypassword' table="myschema"."mytable" (geom)`
         * `QLR`, `GPKG`, `SHP` : You don't need to edit Link column. Click on browse button (`...`) to open the OpenFileDialog. With `GPKG` format, plugin try to find layers. Select one.
 
 #### Plugin diagram
