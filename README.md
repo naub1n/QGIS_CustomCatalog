@@ -74,7 +74,7 @@ You can add or create as many setting as you want.
 
 #### Plugin diagram
 
-<img src="doc/screenshots/plugin_diagram.png">
+<img src="doc/plugin_diagram.png">
 
 ## Add a layer to canvas
 
