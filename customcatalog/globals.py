@@ -35,11 +35,12 @@ import os
 
 from qgis.PyQt import QtCore, QtWidgets, QtGui, QtXml
 from qgis.core import QgsMessageLog, QgsApplication, Qgis, QgsRasterLayer, QgsVectorLayer, QgsProviderRegistry, \
-    QgsDataSourceUri, QgsProject, QgsLayerDefinition
+    QgsDataSourceUri, QgsProject, QgsLayerDefinition, QgsSettings
 from qgis.utils import iface
-from urllib import parse, request
+from urllib import parse, request, error
 
 settings_file = os.path.join(os.path.dirname(__file__), '../conf/settings.json')
+settings_root = "CustomCatalog"
 
 
 def catalog_type_values():
@@ -93,8 +94,24 @@ def init_catalog_data(catalog_name, indent=None):
     return json_data
 
 def load_settings():
-    with open(settings_file) as f:
-        settings = json.load(f)
+    catalogs_group = settings_root + "/catalogs"
+
+    s = QgsSettings()
+    s.beginGroup(catalogs_group)
+
+    catalogs = []
+
+    for key in s.childGroups():
+        catalog = {
+            "name": s.value("%s/name" % key, ""),
+            "type": s.value("%s/type" % key, ""),
+            "link": s.value("%s/link" % key, ""),
+            "qgisauthconfigid": s.value("%s/qgisauthconfigid" % key, "")
+        }
+        catalogs.append(catalog)
+
+    settings = {"catalogs": catalogs}
+
     return settings
 
 
@@ -135,7 +152,16 @@ def read_catalogs(file_format, path, authid=None):
             path = os.path.join(filePath, '../catalog/default_catalog.json')
 
         if parse.urlparse(path).scheme in ['http', 'https']:
-            f = request.urlopen(path)
+            try:
+                f = request.urlopen(path)
+
+            except error.HTTPError as exc:
+                log(tr('HTTP Error, code: ') + str(exc.code), Qgis.Warning)
+                return
+
+            except error.URLError as exc:
+                log(tr('URL Error, reason: ') + str(exc.reason), Qgis.Warning)
+                return
 
         else:
             if not os.path.isfile(path):

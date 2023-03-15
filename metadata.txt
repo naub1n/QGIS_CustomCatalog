@@ -6,7 +6,7 @@
 name=Custom Catalog
 qgisMinimumVersion=3.0
 description=Create your own catalog based on various sources and versions
-version=1.1.0
+version=1.2.0
 author=Nicolas AUBIN
 email=aubinnic@gmail.com
 
@@ -20,14 +20,16 @@ repository=https://github.com/naub1n/QGIS_CustomCatalog
 
 hasProcessingProvider=no
 # Uncomment the following line and add your changelog:
-changelog=1.0.0
-  - First release
+changelog=1.2.0
+  - Plugin settings are now saved in QGIS settings
   1.1.0
   - Add Oracle provider support for layers
   - Add sql filter support for layers
   - Add sorted tables and schemas in connection database dialog
   - Add online json file support for settings
   - Fix missing AuthId in database settings connection
+  1.0.0
+  - First release
 
 # Tags are comma separated with spaces allowed
 tags=python,catalog
