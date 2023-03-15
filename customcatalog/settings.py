@@ -37,7 +37,7 @@ from qgis.PyQt import QtWidgets, uic, QtCore
 from qgis.core import Qgis, QgsSettings
 from urllib import parse
 
-from .globals import log, catalog_type_values, settings_file, load_settings, cbx_defaults_authid
+from .globals import log, catalog_type_values, cbx_defaults_authid, load_settings, settings_root
 from .edit_catalog import CustomCatalogEditCatalog
 from .add_setting import CustomCatalogAddSettingDialog
 from .db_connection import CustomCatalogAddConnexionDialog
@@ -245,10 +245,20 @@ class CustomCatalogSettingsDialog(QtWidgets.QDialog, FORM_CLASS):
                 if check_only:
                     return True
                 else:
-                    with open(settings_file, 'w') as outfile:
-                        json.dump(settings, outfile, indent=2)
-                        log(self.tr("Settings saved"), Qgis.Info)
+                    catalogs_group = settings_root + "/catalogs"
+                    s = QgsSettings()
+                    s.remove(catalogs_group)
+                    s.beginGroup(catalogs_group)
+                    for key, setting in enumerate(settings.get("catalogs", [])):
+                        s.setValue("%s/name" % key, setting.get("name", ""))
+                        s.setValue("%s/type" % key, setting.get("type", ""))
+                        s.setValue("%s/link" % key, setting.get("link", ""))
+                        s.setValue("%s/qgisauthconfigid" % key, setting.get("qgisauthconfigid", ""))
+                    #with open(settings_file, 'w') as outfile:
+                        #json.dump(settings, outfile, indent=2)
+                    log(self.tr("Settings saved"), Qgis.Info)
                     self.settingsSaved.emit()
+
 
     def check_keys_settings(self, setting):
         if "name" not in setting:
